@@ -1,0 +1,11 @@
+SNPSLMD_LICENSE_FILE=27020@flexlm01.silicom.dk
+SNPS_SIM_DEFAULT_GUI=dve
+BOHR_VCS_DIR=/net/fs01/firmware-tools/synopsys/vcs
+VCS_VER=Q-2020.03-SP1
+VCS_TARGET_ARCH=amd64
+VCS_HOME=/net/fs01/firmware-tools/synopsys/vcs/Q-2020.03-SP1
+SYNOPSYS_VCS_HOME=/net/fs01/firmware-tools/synopsys/vcs/Q-2020.03-SP1
+VC_HOME=/net/fs01/firmware-tools/synopsys/vcs/Q-2020.03-SP1
+DESIGNWARE_HOME=/net/fs01/firmware-tools/synopsys/vcs/Q-2020.03-SP1/../../vip_lib
+UVM_HOME=/net/fs01/firmware-tools/synopsys/vcs/Q-2020.03-SP1/etc/
+PATH=/net/fs01/firmware-tools/synopsys/vcs/Q-2020.03-SP1/bin:$PATH

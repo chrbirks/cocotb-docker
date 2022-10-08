@@ -1,3 +1,5 @@
+SIM ?= vcs
+
 docker-build:
 	@DOCKER_BUILDKIT=1 docker build -t cocotb-docker .
 
@@ -10,6 +12,7 @@ docker-sim:
 	-v "$$(pwd):/test_root" \
 	-v /net/fs01/firmware-tools:/net/fs01/firmware-tools \
 	-t \
+	-e SIM \
 	cocotb-docker
 
 docker-shell:
@@ -23,6 +26,9 @@ docker-shell:
 	-i -t \
 	--entrypoint /bin/bash \
 	cocotb-docker
+
+sim:
+	$(MAKE) -f docker.mk
 
 clean:
 	SIM=verilator $(MAKE) -f docker.mk clean # Set verilator as simulator or it will complain that vcs is not sourced

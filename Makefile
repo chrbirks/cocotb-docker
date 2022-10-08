@@ -25,10 +25,10 @@ docker-shell:
 	cocotb-docker
 
 clean:
-	$(MAKE) -f docker.mk clean
+	SIM=verilator $(MAKE) -f docker.mk clean # Set verilator as simulator or it will complain that vcs is not sourced
 
 cleanall:
-	$(MAKE) -f docker.mk cleanall
+	SIM=verilator $(MAKE) -f docker.mk cleanall # Set verilator as simulator or it will complain that vcs is not sourced
 
 # .PHONY: help
 

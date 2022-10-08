@@ -2,3 +2,7 @@ __pycache__
 output
 results.xml
 ucli.key
+DVEfiles/
+*.vcd
+*.vpd
+*.log

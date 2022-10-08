@@ -11,8 +11,8 @@
 //     Polynomial = [0 -> 32]
 //        1 1 1 0 1 1 0 1 1 0 1 1 1 0 0 0 1 0 0 0 0 0 1 1 0 0 1 0 0 0 0 0 1
 //
-// Disclaimer: THESE DESIGNS ARE PROVIDED "AS IS" WITH NO WARRANTY 
-//             WHATSOEVER AND XILINX SPECIFICALLY DISCLAIMS ANY 
+// Disclaimer: THESE DESIGNS ARE PROVIDED "AS IS" WITH NO WARRANTY
+//             WHATSOEVER AND XILINX SPECIFICALLY DISCLAIMS ANY
 //             IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
 //             A PARTICULAR PURPOSE, OR AGAINST INFRINGEMENT.
 //
@@ -23,9 +23,9 @@
 // `include "common_pkg.sv"
 // import common_pkg::mytype2_t;
 
-module crc32_8 
+module crc32_8
   (
-   crc_reg, 
+   crc_reg,
    crc,
    d,
    calc,
@@ -50,21 +50,21 @@ module crc32_8
   wire [31:0]   next_crc;
   //////////////////////////////////////////////////////////////////////////////
   // Infer CRC-32 registers
-  // 
+  //
   // The crc_reg register stores the CRC-32 value.
-  // The crc register is the most significant 8 bits of the 
+  // The crc register is the most significant 8 bits of the
   // CRC-32 value.
   //
   // Truth Table:
   // -----+---------+----------+----------------------------------------------
-  // calc | d_valid | crc_reg  | crc 
+  // calc | d_valid | crc_reg  | crc
   // -----+---------+----------+----------------------------------------------
-  //  0   |     0   | crc_reg  | crc 
+  //  0   |     0   | crc_reg  | crc
   //  0   |     1   |  shift   | bit-swapped, complimented msbyte of crc_reg
-  //  1   |     0   | crc_reg  | crc 
+  //  1   |     0   | crc_reg  | crc
   //  1   |     1   | next_crc | bit-swapped, complimented msbyte of next_crc
   // -----+---------+----------+----------------------------------------------
-  //logic 
+  //logic
   //////////////////////////////////////////////////////////////////////////////
   wire [5:0]    from0  = 6'h6;
   wire [0:0]    carry = 1'b1;
@@ -128,5 +128,13 @@ module crc32_8
   assign next_crc[29] = crc_reg[31] ^ d[0] ^ d[1] ^ d[4] ^ crc_reg[27] ^ crc_reg[21] ^ crc_reg[30];
   assign next_crc[30] = d[0] ^ crc_reg[31] ^ d[3] ^ crc_reg[28] ^ crc_reg[22];
   assign next_crc[31] = d[2] ^ crc_reg[29] ^ crc_reg[23];
-  
+
+`ifdef COCOTB_SIM
+  initial begin
+    $dumpfile("waveform.vcd");
+    $dumpvars(0, crc32_8);
+    #1;
+  end
+`endif
+
 endmodule

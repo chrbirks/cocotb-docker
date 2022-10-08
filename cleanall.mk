@@ -6,5 +6,8 @@ cleanall: clean
 	@rm -rf sim_build
 	@rm -rf modelsim.ini
 	@rm -rf transcript
-	@rm -rf inter.vpd
-
+	@rm -rf waveform.vcd
+	@rm -rf DVEfiles
+	@rm -rf *.vcd
+	@rm -rf *.vpd
+	@rm -rf ucli.key

@@ -1,6 +1,13 @@
 SIM ?= vcs
+ifeq ($(SIM),vcs)
+	PLUSARGS = +vcs+lic+wait
+endif
+
 GUI ?= 1 # Cannot be 1 while running in docker
 WAVES ?= 1
+
+COCOTB_REDUCED_LOG_FMT = 0
+COCOTB_LOG_LEVEL = DEBUG
 
 PWD=$(shell pwd)
 

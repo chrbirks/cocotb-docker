@@ -5,24 +5,34 @@ docker-build:
 
 docker-sim:
 	docker run \
+	--rm \
 	--init \
 	--cap-add \
 	SYS_PTRACE \
 	-u $$(id -u):$$(id -g) \
+	-h $$(hostname) \
+	-e USER="$${USER}" \
+	-e SIM \
+	-e DISPLAY="$${DISPLAY}" \
 	-v "$$(pwd):/test_root" \
 	-v /net/fs01/firmware-tools:/net/fs01/firmware-tools \
+	-v /tmp/.X11-unix:/tmp/.X11-unix \
 	-t \
-	-e SIM \
 	cocotb-docker
 
 docker-shell:
 	docker run \
+	--rm \
 	--init \
 	--cap-add \
 	SYS_PTRACE \
 	-u $$(id -u):$$(id -g) \
+	-h $$(hostname) \
+	-e USER="$${USER}" \
+	-e DISPLAY="$${DISPLAY}" \
 	-v "$$(pwd):/test_root" \
 	-v /net/fs01/firmware-tools:/net/fs01/firmware-tools \
+	-v /tmp/.X11-unix:/tmp/.X11-unix \
 	-i -t \
 	--entrypoint /bin/bash \
 	cocotb-docker

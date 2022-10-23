@@ -18,6 +18,8 @@ TOPLEVEL := crc32_8
 MODULE	 := tb
 
 SIM_BUILD ?= output
+# FIXME: log both compile and sim
+EXTRA_ARGS += -sml -l $(PWD)/$$SIM_BUILD/sim.log
 
 COCOTB_HDL_TIMEUNIT = 1ps
 COCOTB_HDL_TIMEPRECISION = 1ps

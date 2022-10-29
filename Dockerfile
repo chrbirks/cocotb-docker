@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1
 
+# FROM verilator/verilator:4.106 as verilator
 FROM 0x01be/verilator as verilator
 FROM archlinux
 

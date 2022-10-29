@@ -1,4 +1,6 @@
 SIM ?= vcs
+
+# Wait for free license
 ifeq ($(SIM),vcs)
 	PLUSARGS = +vcs+lic+wait
 endif

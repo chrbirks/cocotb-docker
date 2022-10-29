@@ -1,7 +1,11 @@
 SIM ?= vcs
 
 docker-build:
-	@DOCKER_BUILDKIT=1 docker build -t cocotb-docker .
+	@DOCKER_BUILDKIT=1 docker build \
+  --build-arg BUILD_ARG_SNPSLMD_LICENSE_FILE="27020@flexlm01.silicom.dk" \
+	--build-arg BUILD_ARG_VCS_ROOT_DIR="/net/fs01/firmware-tools/synopsys/vcs" \
+	--build-arg BUILD_ARG_VCS_VER="Q-2020.03-SP1" \
+	-t cocotb-docker .
 
 docker-sim:
 	docker run \

@@ -17,7 +17,8 @@ TOPLEVEL_LANG ?= verilog
 VERILOG_SOURCES = $(PWD)/src/crc32_8.sv
 
 TOPLEVEL := crc32_8
-MODULE	 := tb
+MODULE	 := tb_uvm
+# MODULE	 := tb_simple
 
 SIM_BUILD ?= output
 # FIXME: log both compile and sim

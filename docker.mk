@@ -8,12 +8,12 @@ endif
 GUI ?= 0 # Cannot be 1 while running in docker for now
 WAVES ?= 1
 
-COCOTB_REDUCED_LOG_FMT = 0
+COCOTB_REDUCED_LOG_FMT = False ## True
 COCOTB_LOG_LEVEL = DEBUG
 
 PWD=$(shell pwd)
 
-TOPLEVEL_LANG ?= verilog
+TOPLEVEL_LANG ?= systemverilog
 VERILOG_SOURCES = $(PWD)/src/crc32_8.sv
 
 TOPLEVEL := crc32_8
@@ -22,7 +22,8 @@ MODULE	 := tb_uvm
 
 SIM_BUILD ?= output
 # FIXME: log both compile and sim
-EXTRA_ARGS += -sml -l $(PWD)/$$SIM_BUILD/sim.log
+# EXTRA_ARGS += -sml -l $(PWD)/$$SIM_BUILD/sim.log -cm cond+tgl+line+fsm -debug_access+all -cov_text_report fifo_test.vdb
+EXTRA_ARGS += -sml -l $(PWD)/$$SIM_BUILD/sim.log -cm cond+tgl+line+fsm
 
 COCOTB_HDL_TIMEUNIT = 1ps
 COCOTB_HDL_TIMEPRECISION = 1ps

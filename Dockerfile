@@ -11,7 +11,7 @@ WORKDIR /test_root
 
 ## Install cocotb and extra python packages from requirements.txt
 RUN pacman -Sy
-RUN pacman -S python python-pip make grep time bc gcc --noconfirm
+RUN pacman -S xorg-xeyes xorg-xauth python python-pip make grep time bc gcc --noconfirm
 COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 

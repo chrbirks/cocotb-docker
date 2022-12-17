@@ -5,7 +5,7 @@ ifeq ($(SIM),vcs)
 	PLUSARGS = +vcs+lic+wait
 endif
 
-GUI ?= 1 # Cannot be 1 while running in docker
+GUI ?= 0 # Cannot be 1 while running in docker for now
 WAVES ?= 1
 
 COCOTB_REDUCED_LOG_FMT = 0

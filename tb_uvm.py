@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
-from cocotb.triggers import Join, Combine
-from pyuvm import *
 import random
-import cocotb
+from pyuvm import *
 import pyuvm
 # All testbenches use tinyalu_utils, so store it in a central
 # place and add its path to the sys path so we can import it
@@ -11,11 +9,11 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path("..").resolve()))
 # from tinyalu_utils import TinyAluBfm, Ops, alu_prediction  # noqa: E402
-
-
 import cocotb
 from cocotb.triggers import FallingEdge
 from cocotb.queue import QueueEmpty, Queue
+from cocotb.triggers import Join, Combine
+from cocotb.clock import Clock
 import enum
 import logging
 
@@ -28,13 +26,13 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 
-# @enum.unique
-# class Ops(enum.IntEnum):
-#     """Legal ops for the TinyALU"""
-#     ADD = 1
-#     AND = 2
-#     XOR = 3
-#     MUL = 4
+@enum.unique
+class Ops(enum.IntEnum):
+    """Legal ops for the TinyALU"""
+    ADD = 1
+    AND = 2
+    XOR = 3
+    MUL = 4
 
 
 def alu_prediction(valid, calc, error=False):
@@ -50,12 +48,12 @@ def alu_prediction(valid, calc, error=False):
     return result
 
 
-# def get_int(signal):
-#     try:
-#         sig = int(signal.value)
-#     except ValueError:
-#         sig = 0
-#     return sig
+def get_int(signal):
+    try:
+        sig = int(signal.value)
+    except ValueError:
+        sig = 0
+    return sig
 
 
 class TinyAluBfm(metaclass=utility_classes.Singleton):
@@ -74,11 +72,15 @@ class TinyAluBfm(metaclass=utility_classes.Singleton):
         return cmd
 
     async def get_result(self):
+        uvm_root().logger.info("XXX get_result-1")
         result = await self.result_mon_queue.get()
+        uvm_root().logger.info("XXX get_result-2")
         return result
 
     async def reset(self):
+        uvm_root().logger.info("XXX bfm reset-1")
         await FallingEdge(self.dut.clk)
+        uvm_root().logger.info("XXX bfm reset-2")
         self.dut.reset.value = 1
         self.dut.d.value = 0
         self.dut.init.value = 1
@@ -89,7 +91,7 @@ class TinyAluBfm(metaclass=utility_classes.Singleton):
         await FallingEdge(self.dut.clk)
 
     async def driver_bfm(self):
-        await ClockCycles(dut.clk, 50)
+        # await ClockCycles(dut.clk, 50)
         self.dut.calc.value = 1
         self.dut.d_valid.value = 1
         while True:
@@ -108,7 +110,7 @@ class TinyAluBfm(metaclass=utility_classes.Singleton):
         prev_start = 0
         while True:
             await FallingEdge(self.dut.clk)
-            cmd_tuple = (get_int(self.dut.valid),
+            cmd_tuple = (get_int(self.dut.d_valid),
                          get_int(self.dut.calc))
             self.cmd_mon_queue.put_nowait(cmd_tuple)
 
@@ -122,9 +124,10 @@ class TinyAluBfm(metaclass=utility_classes.Singleton):
             prev_done = 1
 
     def start_bfm(self):
-        cocotb.start_soon(self.driver_bfm())
+        uvm_root().logger.info("XXX start_bfm")
+        # cocotb.start_soon(self.driver_bfm()) # FIXME: Include again
         cocotb.start_soon(self.cmd_mon_bfm())
-        cocotb.start_soon(self.result_mon_bfm())
+        # cocotb.start_soon(self.result_mon_bfm()) # FIXME: Include again
 
 # Sequence classes
 
@@ -149,6 +152,7 @@ class AluSeqItem(uvm_sequence_item):
         return same
 
     def __str__(self):
+        uvm_root().logger.info("XXX 4")
         return f"{self.get_name()} : valid: 0x{self.valid:02x} \
         calc: 0x{self.calc:02x}"
 
@@ -164,9 +168,13 @@ class AluSeqItem(uvm_sequence_item):
 
 class MaxSeq(uvm_sequence):
     async def body(self):
-        cmd_tr = AluSeqItem("cmd_tr", 0x1, 0x1)
-        await self.start_item(cmd_tr)
+        # cmd_tr = AluSeqItem("cmd_tr", 0x1, 0x1)
+        cmd_tr = AluSeqItem("cmd_tr", 1, 1)
+        uvm_root().logger.info("XXX 1")
+        await self.start_item(cmd_tr) # FIXME: Never returns from uvm_sequence.start_item()
+        uvm_root().logger.info("XXX 2")
         await self.finish_item(cmd_tr)
+        uvm_root().logger.info("XXX 3")
 
 
 class TestAllSeq(uvm_sequence):
@@ -254,17 +262,25 @@ class Driver(uvm_driver):
 
     def start_of_simulation_phase(self):
         self.bfm = TinyAluBfm()
-
     async def launch_tb(self):
         await self.bfm.reset()
         self.bfm.start_bfm()
 
     async def run_phase(self):
+
+        self.dut = cocotb.top
+        clock = Clock(self.dut.clk, 10, units="us")  # Create a 10us period clock on port clk
+        cocotb.start_soon(clock.start())  # Start the clock
+
         await self.launch_tb()
         while True:
+            uvm_root().logger.info("XXX driver-3")
             cmd = await self.seq_item_port.get_next_item()
+            uvm_root().logger.info("XXX driver-4")
             await self.bfm.calc(cmd.calc, cmd.valid)
+            uvm_root().logger.info("XXX driver-5")
             result = await self.bfm.get_result()
+            uvm_root().logger.info("XXX driver-6")
             self.ap.write(result)
             cmd.result = result
             self.seq_item_port.item_done()
@@ -276,8 +292,10 @@ class Coverage(uvm_subscriber):
         self.cvg = set()
 
     def write(self, cmd):
-        (_, _, op) = cmd
-        self.cvg.add(op)
+        # (_, _, op) = cmd
+        # self.cvg.add(op)
+        (valid, calc) = cmd
+        self.cvg.add(calc)
 
     def report_phase(self):
         try:
@@ -367,6 +385,14 @@ class AluEnv(uvm_env):
         self.cmd_mon.ap.connect(self.coverage.analysis_export)
         self.driver.ap.connect(self.scoreboard.result_export)
 
+
+@pyuvm.test()
+class EmptyTest(uvm_test):
+    """Always passes"""
+
+    async def run_phase(self):
+        self.raise_objection()
+        self.drop_objection()
 
 @pyuvm.test()
 class AluTest(uvm_test):
